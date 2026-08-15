@@ -31,7 +31,22 @@ Siga os passos abaixo para rodar o projeto localmente na sua máquina:
 
 ### 1. Clonar o repositório
 
+### 1. Clonar o repositório
+
 ```bash
 git clone [https://github.com/SEU_USUARIO/sistema-ponto-eletronico.git](https://github.com/SEU_USUARIO/sistema-ponto-eletronico.git)
 cd sistema-ponto-eletronico
+
+### 2. Instalar as dependências
+Certifique-se de ter o Python instalado e execute o seguinte comando no terminal para instalar as bibliotecas necessárias:
+
+pip install customtkinter opencv-python pyzbar reportlab
+
+### 3. Executar o Sistema
+Para abrir o painel de controle principal (Dashboard):
+
+python app.py
+
+(Opcional: Você pode criar um atalho utilizando um script .vbs para abrir a aplicação de forma totalmente oculta e direta na Área de Trabalho).
+
 ```

@@ -31,8 +31,6 @@ Siga os passos abaixo para rodar o projeto localmente na sua máquina:
 
 ### 1. Clonar o repositório
 
-### 1. Clonar o repositório
-
 ```bash
 git clone [https://github.com/SEU_USUARIO/sistema-ponto-eletronico.git](https://github.com/SEU_USUARIO/sistema-ponto-eletronico.git)
 cd sistema-ponto-eletronico

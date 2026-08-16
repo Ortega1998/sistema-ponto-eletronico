@@ -6,11 +6,14 @@ Sistema desktop desenvolvido em Python para controle e gestão de ponto de funci
 
 ## 🚀 Funcionalidades
 
-- **Registro e Validação Facial:** Captura e valida a foto do funcionário em tempo real utilizando a webcam, garantindo segurança na marcação do ponto.
-- **Controle Inteligente de Turno:** Alternância automática inteligente entre **Entrada** e **Saída** com base nos registros do dia.
-- **Cadastro Integrado:** Cadastro simultâneo do colaborador na base de dados relacional e salvamento da amostra facial.
-- **Relatórios e Filtros:** Tela dedicada para consulta de histórico com filtros flexíveis por nome do funcionário e data.
-- **Interface Moderna:** Design limpo e responsivo utilizando o tema escuro do CustomTkinter.
+# Sistema de Ponto Eletrônico com Reconhecimento Facial
+
+Sistema desktop desenvolvido em Python com CustomTkinter e SQLite para controle de ponto por reconhecimento facial e gestão de funcionários.
+
+- **Registro de Ponto:** Entrada e saída automatizada por reconhecimento facial.
+- **Gestão de Funcionários:** Cadastro com cargos personalizados e exclusão segura por ID único.
+- **Relatórios:** Consulta de registros com filtro por nome, exportação para CSV/Excel e janela de correção manual de horários.
+- **Banco de Dados:** SQLite integrado com inicialização automática.
 
 ---
 

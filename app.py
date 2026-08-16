@@ -1,135 +1,176 @@
 import customtkinter as ctk
-import subprocess
-import sqlite3
-from banco import gerar_hash_senha
-
-# Configuração global de aparência
-ctk.set_appearance_mode("System")  # Segue o tema do Windows (Dark/Light)
-ctk.set_default_color_theme("blue")
+import facial_service
+import banco
 
 class AppPonto(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("Sistema de Ponto Eletrônico")
-        self.geometry("520x480")
-        self.resizable(False, False)
 
-        # Abas principais com visual mais espaçado
-        self.tabview = ctk.CTkTabview(self, width=480, height=420)
-        self.tabview.pack(pady=15, padx=15)
+        self.title("Sistema de Ponto Eletrônico - Completo")
+        self.geometry("650x550")
         
-        self.aba_ponto = self.tabview.add("  Ponto  ")
-        self.aba_relatorio = self.tabview.add("  Relatórios  ")
-        self.aba_admin = self.tabview.add("  Administração  ")
-
-        # ==========================================
-        # --- ABA PONTO ---
-        # ==========================================
-        lbl_ponto_titulo = ctk.CTkLabel(self.aba_ponto, text="Controle de Jornada", font=("Arial", 18, "bold"))
-        lbl_ponto_titulo.pack(pady=(30, 10))
+        ctk.set_appearance_mode("Dark")
         
-        lbl_ponto_sub = ctk.CTkLabel(self.aba_ponto, text="Clique abaixo para iniciar a leitura do seu QR Code", text_color="gray")
-        lbl_ponto_sub.pack(pady=(0, 20))
-
-        self.btn_ponto = ctk.CTkButton(
-            self.aba_ponto, text="📸  Iniciar Ponto (Webcam)", 
-            command=self.abrir_ponto, height=45, font=("Arial", 14, "bold")
-        )
-        self.btn_ponto.pack(pady=10, padx=40, fill="x")
-
-        # ==========================================
-        # --- ABA RELATÓRIOS ---
-        # ==========================================
-        lbl_rel_titulo = ctk.CTkLabel(self.aba_relatorio, text="Central de Relatórios", font=("Arial", 18, "bold"))
-        lbl_rel_titulo.pack(pady=(30, 10))
+        # Criação do Sistema de Abas
+        self.tabview = ctk.CTkTabview(self, width=600, height=480)
+        self.tabview.pack(padx=20, pady=20, fill="both", expand=True)
         
-        lbl_rel_sub = ctk.CTkLabel(self.aba_relatorio, text="Gere relatórios consolidados em PDF com filtros", text_color="gray")
-        lbl_rel_sub.pack(pady=(0, 20))
-
-        self.btn_relatorio = ctk.CTkButton(
-            self.aba_relatorio, text="📄  Gerar Relatório Filtrado", 
-            command=self.gerar_relatorio, height=45, font=("Arial", 14, "bold"),
-            fg_color="#2b8a3e", hover_color="#237032" # Verde profissional
-        )
-        self.btn_relatorio.pack(pady=10, padx=40, fill="x")
-
-        # ==========================================
-        # --- ABA ADMIN ---
-        # ==========================================
-        lbl_adm_titulo = ctk.CTkLabel(self.aba_admin, text="Gerenciamento de Funcionários", font=("Arial", 15, "bold"))
-        lbl_adm_titulo.pack(pady=(15, 10))
-
-        # Container centralizado para os campos de entrada
-        self.frame_inputs = ctk.CTkFrame(self.aba_admin, fg_color="transparent")
-        self.frame_inputs.pack(pady=5)
-
-        self.ent_nome = ctk.CTkEntry(self.frame_inputs, placeholder_text="Nome Completo", width=300, height=35)
-        self.ent_nome.pack(pady=6)
+        # Adicionando as Abas
+        self.aba_ponto = self.tabview.add("Registro Facial")
+        self.aba_relatorio = self.tabview.add("Relatórios")
         
-        self.ent_cargo = ctk.CTkEntry(self.frame_inputs, placeholder_text="Cargo", width=300, height=35)
-        self.ent_cargo.pack(pady=6)
+        # Configura o conteúdo de cada aba
+        self.setup_aba_ponto()
+        self.setup_aba_relatorio()
+
+    def setup_aba_ponto(self):
+        titulo = ctk.CTkLabel(self.aba_ponto, text="Controle de Ponto por Reconhecimento", font=("Arial", 18, "bold"))
+        titulo.pack(pady=15)
         
-        self.ent_qr = ctk.CTkEntry(self.frame_inputs, placeholder_text="QR Code ID", width=300, height=35)
-        self.ent_qr.pack(pady=6)
+        self.entry_nome = ctk.CTkEntry(self.aba_ponto, placeholder_text="Digite seu Nome", width=300)
+        self.entry_nome.pack(pady=10)
         
-        self.ent_senha = ctk.CTkEntry(self.frame_inputs, placeholder_text="Senha de Acesso", show="*", width=300, height=35)
-        self.ent_senha.pack(pady=6)
+        self.btn_cadastrar = ctk.CTkButton(self.aba_ponto, text="Cadastrar Rosto", fg_color="green", command=self.fazer_cadastro_facial)
+        self.btn_cadastrar.pack(pady=8)
+        
+        self.btn_ponto = ctk.CTkButton(self.aba_ponto, text="Bater Ponto Facial", fg_color="blue", command=self.bater_ponto_facial)
+        self.btn_ponto.pack(pady=8)
+        
+        self.lbl_status = ctk.CTkLabel(self.aba_ponto, text="Aguardando ação...", text_color="gray", font=("Arial", 12))
+        self.lbl_status.pack(pady=20)
 
-        # Botões de Ação Admin
-        self.btn_cadastrar = ctk.CTkButton(
-            self.aba_admin, text="Adicionar Funcionário", 
-            command=self.cadastrar, fg_color="#1f77b4", hover_color="#145a8d",
-            height=38, width=200
-        )
-        self.btn_cadastrar.pack(pady=(10, 5))
+    def setup_aba_relatorio(self):
+        titulo = ctk.CTkLabel(self.aba_relatorio, text="Relatório de Pontos", font=("Arial", 18, "bold"))
+        titulo.pack(pady=10)
+        
+        frame_filtros = ctk.CTkFrame(self.aba_relatorio)
+        frame_filtros.pack(pady=5, padx=10, fill="x")
+        
+        self.entry_filtra_nome = ctk.CTkEntry(frame_filtros, placeholder_text="Filtrar por Nome", width=180)
+        self.entry_filtra_nome.pack(side="left", padx=5, pady=5)
+        
+        self.entry_filtra_data = ctk.CTkEntry(frame_filtros, placeholder_text="Data (DD/MM/AAAA)", width=150)
+        self.entry_filtra_data.pack(side="left", padx=5, pady=5)
+        
+        btn_filtrar = ctk.CTkButton(frame_filtros, text="Buscar", width=90, command=self.carregar_registros)
+        btn_filtrar.pack(side="left", padx=5, pady=5)
+        
+        btn_limpar = ctk.CTkButton(frame_filtros, text="Limpar", fg_color="gray", width=80, command=self.limpar_filtros)
+        btn_limpar.pack(side="left", padx=5, pady=5)
+        
+        self.txt_relatorio = ctk.CTkTextbox(self.aba_relatorio, width=580, height=280)
+        self.txt_relatorio.pack(pady=10)
+        
+        self.carregar_registros()
 
-        self.btn_excluir = ctk.CTkButton(
-            self.aba_admin, text="Excluir por QR ID", 
-            command=self.excluir, fg_color="#c92a2a", hover_color="#a61e1e",
-            height=35, width=200
-        )
-        self.btn_excluir.pack(pady=5)
+    def limpar_filtros(self):
+        self.entry_filtra_nome.delete(0, 'end')
+        self.entry_filtra_data.delete(0, 'end')
+        self.carregar_registros()
 
-    # --- FUNÇÕES DE CONTROLE ---
-    def abrir_ponto(self):
-        subprocess.Popen(["python", "main.py"])
-
-    def gerar_relatorio(self):
-        subprocess.Popen(["python", "relatorio_filtrado.py"])
-
-    def cadastrar(self):
-        nome, cargo, qr, senha = self.ent_nome.get(), self.ent_cargo.get(), self.ent_qr.get(), self.ent_senha.get()
-        if all([nome, cargo, qr, senha]):
+    def fazer_cadastro_facial(self):
+        nome = self.entry_nome.get().strip()
+        if not nome:
+            self.lbl_status.configure(text="Erro: Digite o nome antes de cadastrar!", text_color="yellow")
+            return
+            
+        self.lbl_status.configure(text="Abrindo câmera para cadastro...", text_color="yellow")
+        self.update()
+        
+        sucesso = facial_service.salvar_foto_cadastro(nome)
+        
+        if sucesso:
             try:
-                conn = sqlite3.connect("sistema_ponto.db")
+                conn = banco.conectar()
                 cursor = conn.cursor()
-                cursor.execute("INSERT INTO usuarios (nome, cargo, qrcode_id, senha_hash) VALUES (?, ?, ?, ?)", 
-                               (nome, cargo, qr, gerar_hash_senha(senha)))
-                conn.commit()
+                
+                cursor.execute("SELECT id FROM usuarios WHERE nome = ?", (nome,))
+                existe = cursor.fetchone()
+                
+                if not existe:
+                    cursor.execute("""
+                        INSERT INTO usuarios (nome, cargo, qrcode_id, senha_hash) 
+                        VALUES (?, ?, ?, ?)
+                    """, (nome, "Funcionário", f"QR_{nome}", banco.gerar_hash_senha("123")))
+                    conn.commit()
+                
                 conn.close()
-                print(f"[SUCESSO] Funcionário {nome} cadastrado!")
-                # Limpa os campos após o cadastro
-                self.ent_nome.delete(0, 'end')
-                self.ent_cargo.delete(0, 'end')
-                self.ent_qr.delete(0, 'end')
-                self.ent_senha.delete(0, 'end')
+                
+                self.lbl_status.configure(text=f"Sucesso! {nome.upper()} cadastrado.", text_color="green")
+                self.entry_nome.delete(0, 'end')
+                self.carregar_registros()
+                
             except Exception as e:
-                print(f"[ERRO] Falha ao cadastrar: {e}")
+                self.lbl_status.configure(text=f"Erro ao salvar no banco: {str(e)}", text_color="red")
         else:
-            print("[AVISO] Preencha todos os campos para cadastrar.")
+            self.lbl_status.configure(text="Cadastro facial cancelado.", text_color="red")
 
-    def excluir(self):
-        qr = self.ent_qr.get()
-        if qr:
-            conn = sqlite3.connect("sistema_ponto.db")
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM usuarios WHERE qrcode_id = ?", (qr,))
-            conn.commit()
-            conn.close()
-            print(f"[SUCESSO] Funcionário com QR ID '{qr}' removido!")
-            self.ent_qr.delete(0, 'end')
+    def bater_ponto_facial(self):
+        nome = self.entry_nome.get().strip()
+        if not nome:
+            self.lbl_status.configure(text="Erro: Digite seu nome antes de bater o ponto!", text_color="yellow")
+            return
+
+        self.lbl_status.configure(text="Abrindo câmera para validação...", text_color="yellow")
+        self.update_idletasks()
+        
+        resultado = facial_service.verificar_e_comparar_ponto(nome)
+        
+        if resultado == "nao_cadastrado":
+            self.lbl_status.configure(text=f"Aviso: Funcionário '{nome}' não possui cadastro!", text_color="red")
+            return
+            
+        if resultado is True:
+            banco.registrar_ponto_no_banco(nome)
+            self.lbl_status.configure(text=f"Ponto registrado para: {nome.upper()}!", text_color="green")
+            self.entry_nome.delete(0, 'end')
+            self.carregar_registros()
         else:
-            print("[AVISO] Digite o QR Code ID para excluir.")
+            self.lbl_status.configure(text="Erro: Rosto não confere com o cadastro!", text_color="red")
+
+    def carregar_registros(self):
+        self.txt_relatorio.delete("1.0", "end")
+        filtro_nome = self.entry_filtra_nome.get().strip()
+        filtro_data = self.entry_filtra_data.get().strip()
+        
+        try:
+            conn = banco.conectar()
+            cursor = conn.cursor()
+            
+            query = """
+                SELECT u.nome, r.data_hora, r.tipo 
+                FROM registros r
+                JOIN usuarios u ON r.usuario_id = u.id
+                WHERE 1=1
+            """
+            parametros = []
+            
+            if filtro_nome:
+                query += " AND u.nome LIKE ? COLLATE NOCASE"
+                parametros.append(f"%{filtro_nome}%")
+                
+            if filtro_data:
+                query += " AND r.data_hora LIKE ?"
+                parametros.append(f"%{filtro_data}%")
+                
+            query += " ORDER BY r.id DESC"
+            
+            cursor.execute(query, parametros)
+            resultados = cursor.fetchall()
+            conn.close()
+            
+            if not resultados:
+                self.txt_relatorio.insert("end", "Nenhum registro encontrado.\n")
+                return
+                
+            for reg in resultados:
+                nome_func, data_hora, tipo = reg
+                cor_tipo = "🟢 ENTRADA" if tipo == "Entrada" else "🔴 SAÍDA"
+                linha = f"Funcionário: {nome_func.upper()} | Data/Hora: {data_hora} | Tipo: {cor_tipo}\n"
+                self.txt_relatorio.insert("end", linha)
+                
+        except Exception as e:
+            self.txt_relatorio.insert("end", f"Erro ao carregar relatórios: {str(e)}")
 
 if __name__ == "__main__":
     app = AppPonto()

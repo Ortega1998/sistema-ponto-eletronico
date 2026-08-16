@@ -1,44 +1,41 @@
-# 🕒 Sistema de Ponto Eletrônico Desktop
+# Sistema de Ponto Eletrônico com Reconhecimento Facial
 
-Sistema desenvolvido em Python para controle de jornada de trabalho com autenticação via QR Code, interface gráfica moderna, geração de relatórios em PDF e painel administrativo completo.
-
-## 🚀 Tecnologias e Ferramentas
-
-O projeto foi construído utilizando as seguintes tecnologias e bibliotecas:
-
-- Python 3.x - Linguagem principal de programação.
-- CustomTkinter - Framework para construção da interface gráfica moderna (Dark/Light mode).
-- OpenCV & pyzbar - Utilizados para captura de webcam e leitura/decodificação dos QR Codes dos crachás.
-- SQLite3 - Banco de dados relacional leve e embutido para armazenamento de usuários e registros de ponto.
-- ReportLab - Biblioteca para geração automatizada de relatórios e comprovantes em formato PDF.
-- Hashlib - Segurança para criptografia de senhas dos funcionários.
+Sistema desktop desenvolvido em Python para controle e gestão de ponto de funcionários, utilizando **Reconhecimento Facial** seguro baseado em comparação de pixels (OpenCV), interface gráfica moderna (**CustomTkinter**) e banco de dados **SQLite**.
 
 ---
 
-## 📂 Estrutura do Projeto
+## 🚀 Funcionalidades
 
-- app.py - Dashboard principal (Interface gráfica com abas).
-- main.py - Script de leitura de ponto via webcam.
-- banco.py - Configuração do banco de dados e funções de segurança.
-- relatorio_filtrado.py - Geração de relatórios em PDF com filtros dinâmicos.
-- cadastrar.py / gerar_qrcode.py - Utilitários de suporte.
+- **Registro e Validação Facial:** Captura e valida a foto do funcionário em tempo real utilizando a webcam, garantindo segurança na marcação do ponto.
+- **Controle Inteligente de Turno:** Alternância automática inteligente entre **Entrada** e **Saída** com base nos registros do dia.
+- **Cadastro Integrado:** Cadastro simultâneo do colaborador na base de dados relacional e salvamento da amostra facial.
+- **Relatórios e Filtros:** Tela dedicada para consulta de histórico com filtros flexíveis por nome do funcionário e data.
+- **Interface Moderna:** Design limpo e responsivo utilizando o tema escuro do CustomTkinter.
 
 ---
 
-## ⚙️ Como Instalar e Executar
+## 🛠️ Tecnologias Utilizadas
 
-Siga os passos abaixo para rodar o projeto localmente na sua máquina:
+- **Python** (Linguagem principal)
+- **CustomTkinter** (Interface gráfica)
+- **OpenCV (`cv2`)** (Captura de vídeo, processamento de imagem e comparação de histogramas)
+- **SQLite3** (Armazenamento local de dados e histórico de pontos)
+- **Hashlib** (Segurança e criptografia de senhas)
 
-1. Clonar o repositório:
-   git clone https://github.com/SEU_USUARIO/sistema-ponto-eletronico.git
-   cd sistema-ponto-eletronico
+---
 
-2. Instalar as dependências:
-   Certifique-se de ter o Python instalado e execute o seguinte comando no terminal para instalar as bibliotecas necessárias:
-   pip install customtkinter opencv-python pyzbar reportlab
+## 📦 Como Executar o Projeto
 
-3. Executar o Sistema:
-   Para abrir o painel de controle principal (Dashboard), execute:
+1. **Clone o repositório:**
+
+   ```bash
+   git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)
+   cd seu-repositorio
+
+   ```
+
+2. **Instale as dependências necessárias:**
+   pip install customtkinter opencv-python
+
+3. **Execute a aplicação:**
    python app.py
-
-(Opcional: Você pode criar um atalho utilizando um script .vbs para abrir a aplicação de forma totalmente oculta e direta na Área de Trabalho).
